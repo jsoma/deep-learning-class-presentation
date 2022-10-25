@@ -1,0 +1,111 @@
+# Handwritten Digit Recognition with a Back-Propagation Network 
+
+1990
+Specifically for ZIP codes - small, manageable, *and* practical
+What is was pulled from ___
+segmentation is hard
+characters converted to be 16x16
+not binary, greyscale, so -1 to 1
+output is 10 units
+NOT a fully-connected network
+" Therefore a restricted
+connection-scheme must be devised, guided by our prior knowledge about shape
+recognition"
+feature map? same as convolution plus squashing.
+feature map is a neuron that does one thing locally and you just move it over the image.
+what is "shared-weight"
+convolutions are just kernels/filters
+Hidden layers are H1-H4
+feature maps are then fed into an average/subsampling layer
+averaging layer helps with features moving around
+H1 and H3 are feature extractors
+H2 and H4 are averaging/subsampling layers
+"Although the size of the active part of the input is 16 by 16, the actual input is a 28
+by 28 plane to avoid problems when a kernel overlaps a boundary. HI is composed
+of 4 groups of 576 units arranged as 4 independent 24 by 24 feature maps. " help
+http://www.akramz.space/posts/digit_recognizer/
+weight-sharing means "does this exist anywhere"
+https://www.cs.ryerson.ca/~aharley/vis/conv/flat.html - viz
+
+
+
+
+# ImageNet Classification with Deep Convolutional Neural Networks
+
+So much more complicated
+but dropout!!! to prevent overfitting
+but not so many more convolutional layers. Does it matter?
+
+MNIST
+datasets are what matters!! there are new, big datasets!
+but no matter how much we have ITS NEVER ENOUGH because there are still going to be unlabeled things
+needs prior knowledge
+CNNs can do that by figuring out similarity between images and stuff
+compared to standard networks they have fewer connections and parameters and are thus easier to train, while their theoretical best performance is only slightly worse
+still expensive to do with high-res images! BUT WE CAN DO IT NOW
+
+SPECIFIC CONTRIBUTIONS:
+* train one of largest CNNs on ImageNet and got the best results
+* Made optimized convolutions and published them
+* Network has new and unusual features that improve performance
+* worked on preventing overfitting
+* can get better when GPUs get faster and datasets get bigger
+
+ImageNet
+Labeled by mechanical turk, 15 mil high-res images from 22k categories from the internet
+What about licensing???
+ILSVRC is a competition.
+two ways of scoring: top-1 and top-5, "where the top-5 error rate is the fraction of test images for which the correct label is not among the five labels considered most probable by the model"
+Downsample to 256x256 via CROPPING.
+subtracted mean activity (? color?) over rthe training set from each pixel. So kind of uh standardized around 0? Trained on raw RGB values.
+
+EIGHT LAYERS. Five convolutional, 3 fully-connected.
+Uses relus instead of tanh
+several times faster than tanh, can do in 5 epochs what would have taken ~37 epochs! (25% error rate)
+it's a nonsaturating nonlinearity, whatever that means
+
+Trained on multiple GPUs instead of just one (two.)
+Use patterns of layer connectivity (and which parts of layer n interact with n+1) that optimize for this - so more communication might be better, but less is faster
+similar to a "columnar" CNN
+probably needs more info
+
+relus don't need input normalization
+wtf is saturation non-saturating means it doesn't fit between 0-1  (or -1 to 1)
+takes longer to converge because gradient is small
+local response normalization - tries to be like if there is a lot of activity here only the big ones make it through - competition between the kernels at the same location
+
+overlapping pooling just seems like reducing the size of the layers, except without reducing the size of the layers
+
+output is fed to a 1000-way softmax to predict 1000 labels with distribution
+kernels in 2, 4, 5th layer are only connected to the previous layer in the same GPU to speed things up
+kernels in 3rd are fully connected to second
+response-normalization layers are on the 1st and 2nd conv layers
+max pooling are after the response-norm and the 5th conv layer
+max pooling - every 2 you take the avg of a 3x3
+every layer is relu'd
+INPUT (224x224x3): 256x256 cropped/reflected -> 224 × 224 × 3 (RGB)
+LAYER ONE (55x55x48 x 2): 96 kernels of size 11x11x3 w a stride of 4 (RGB!) + resp. normalized + pooled 
+LAYER TWO (27x27x128 x 2): 256 kernels of size 5x5x48 + resp normalized + pooled
+LAYER THREE (13x13x192 x 2): 384 kernels of size 3x3x256
+LAYER FOUR (13x13x192 x 2): 384 kernels of size 3x3x192
+LAYER FIVE (13x13x128 x 2): 256 kernels of 3x3x192 + pooled
+LAYERS SIX, SEVEN, EIGHT: Fully-connected layers of 4096 neurons
+relu is done to all of them
+
+The network’s input is 150,528-dimensional, and the number of neurons in the network’s remaining layers is given by 253,440–186,624–64,896–64,896–43,264– 4096–4096–1000.
+
+DATA AUGMENTATION
+transforms on the CPU while the GPU is working
+translations and reflections, cut out 244 of the 256
+prediction based on 5 patches
+and some pca rgb transform
+
+dropout
+
+did amazing
+
+what kinds of mistakes does it make? Perfectly fine oens
+put cherry and agaric on there
+
+euclidian different similarity at the final level - it's not about shape or pose it's about what something is
+"we could have done better!!!"

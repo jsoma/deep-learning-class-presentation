@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Jonathan Soma">
+  <meta name="dcterms.date" content="2021-01-19">
+  <title>Two Papers</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/reset.css">
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/theme/serif.css" id="theme">
+  <style>
+  .slides {
+      font-size: 0.75em;
+  }
+  .reveal ul {
+      display: block;
+  }
+  .reveal ol {
+      display: block;
+  }
+
+  img {
+      max-height: 400px !important;
+  }
+
+  figcaption {
+      font-size: 0.6em !important;
+      font-style: italic !important;
+  }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide">
+  <h1 class="title">Two Papers</h1>
+  <p class="subtitle">Robustness and Security in ML Systems, Spring 2021</p>
+  <p class="author">Jonathan Soma</p>
+  <p class="date">January 19, 2021</p>
+</section>
+
+<section id="handwritten-digit-recognition-with-a-back-propagation-network" class="slide level2">
+<h2>Handwritten Digit Recognition with a Back-Propagation Network</h2>
+<p>Y. Le Cun, B. Boser, J. S. Denker, D. Henderson, R. E. Howard, W. Hubbard, and L. D. Jackel</p>
+<p>a.k.a. Le Cun 1990</p>
+</section>
+<section id="yann-lecun" class="slide level2">
+<h2>Yann LeCun</h2>
+<figure>
+<img data-src="images/lecun.png" alt="Yann LeCun on Wikipedia" /><figcaption aria-hidden="true">Yann LeCun on Wikipedia</figcaption>
+</figure>
+<p>Chief AI Scientist (and several other titles) at Facebook, “founding father of convolutional nets.”</p>
+</section>
+<section id="yann-le-cun-vs.-yann-lecun" class="slide level2">
+<h2>Yann Le Cun vs. Yann LeCun</h2>
+<blockquote>
+<p>All kinds of badly programmed computers thought that “Le” was my middle name. Even the science citation index knew me as “Y. L. Cun”, which is one of the reasons I now spell my name “LeCun”.</p>
+<p>From Yann’s <a href="http://yann.lecun.com/ex/fun/">Fun Stuff</a> page</p>
+<p>Also: <a href="https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/">Falsehoods Programmers Believe About Names</a></p>
+</blockquote>
+</section>
+<section class="slide level2">
+
+<h3 id="the-problem">The Problem</h3>
+<p>How to turn handwritten ZIP codes from envelopes into numbers</p>
+<figure>
+<img data-src="images/original.png" alt="Examples of original zipcodes from the testing set" /><figcaption aria-hidden="true">Examples of original zipcodes from the testing set</figcaption>
+</figure>
+</section>
+<section class="slide level2">
+
+<h3 id="not-the-problem">NOT The Problem</h3>
+<ul>
+<li>Location ZIP code on the envelope</li>
+<li>Digitization</li>
+<li>Segmentation</li>
+</ul>
+<p><strong>ONLY</strong> concerned with converting a single digit’s image into a number</p>
+</section>
+<section class="slide level2">
+
+<figure>
+<img data-src="images/normalized.png" alt="Examples of normalized digits from the testing set" /><figcaption aria-hidden="true">Examples of normalized digits from the testing set</figcaption>
+</figure>
+</section>
+<section id="network-input" class="slide level2">
+<h2>Network Input</h2>
+<figure>
+<img data-src="images/zero-encoded.png" alt="Digitized zero" /><figcaption aria-hidden="true">Digitized zero</figcaption>
+</figure>
+<p><strong>Input:</strong> 16x16 grid of greyscale values, from <code>-1</code> to <code>1</code></p>
+<p>Normalized from ~40x60px original, preserving aspect ratio. Network needs consistent size!</p>
+</section>
+<section id="network-output" class="slide level2">
+<h2>Network Output</h2>
+<p><strong>To a human:</strong> Potential classes of <code>0</code>, <code>1</code>, <code>2</code>…<code>9</code></p>
+<p><strong>To the computer:</strong> Ten nodes, activated from <code>-1</code> to <code>+1</code>. Higher value means higher probability of it being that digit. More or less one-hot encoding.</p>
+<h3 id="for-example"><strong>For example</strong></h3>
+<p>Given the output</p>
+<p><code>[0 0 0.5 1 0 -0.3 -0.5 0 0.75 0]</code></p>
+<p>The network’s prediction is <strong>nine</strong> because <code>0.75</code> is the highest number. Next most probable is a <strong>three</strong> with a score of <code>0.5</code>.</p>
+</section>
+<section id="four-hidden-layers" class="slide level2">
+<h2>Four Hidden Layers</h2>
+<ul>
+<li><strong>Input:</strong> 16x16 greyscale input</li>
+<li><strong>H1</strong>: Feature layer</li>
+<li><strong>H2</strong>: Averaging layer</li>
+<li><strong>H3</strong>: Feature layer</li>
+<li><strong>H4</strong>: Averaging layer</li>
+<li><strong>Output:</strong> 10x1 encoding</li>
+</ul>
+<p><em>Not</em> fully-connected. “A fully connected network with enough discriminative power for the task would have far too many parameters to be able to generalize correctly.”</p>
+</section>
+<section id="convolution" class="slide level2">
+<h2>Convolution</h2>
+<p>A <strong>convolution</strong> is used to “see” patterns around a pixel like horizontal, vertical or diagonal edges.</p>
+<figure>
+<img data-src="images/convolution-1.png" alt="A 3x3 kernel being applied to an image" /><figcaption aria-hidden="true">A 3x3 kernel being applied to an image</figcaption>
+</figure>
+<p>It’s just linear algebra: a <strong>kernel</strong> is applied to create a new version of a pixel dependent on the pixels around it. The kernel (or convolutional matrix) is just a matrix that is multiplied against each pixel and its surroundings.</p>
+</section>
+<section id="application-of-the-convolution" class="slide level2">
+<h2>Application of the convolution</h2>
+<p>Edges of the image are padded with <code>-1</code> to allow kernel to be applied to outermost pixels. The result is called a <strong>feature map</strong>.</p>
+<figure>
+<img data-src="images/sliding.gif" alt="Kernel being applied to create the first layer" /><figcaption aria-hidden="true">Kernel being applied to create the first layer</figcaption>
+</figure>
+</section>
+<section id="a-single-kernel-map" class="slide level2">
+<h2>A single kernel map</h2>
+<p>The <code>-1</code> <code>+1</code> range of each feature map highlights a specific type of feature at a specific location.</p>
+<figure>
+<img data-src="images/zero.png" alt="Upper edge highlighted by a convolution" /><figcaption aria-hidden="true">Upper edge highlighted by a convolution</figcaption>
+</figure>
+</section>
+<section id="layer-h1" class="slide level2">
+<h2>Layer: H1</h2>
+<p>Four different 5x5 kernels are applied, creating four different 576-node feature maps that each highlight a different type of feature.</p>
+<figure>
+<img data-src="images/zero-h1.png" alt="Four kernels applied, each extracting a different feature" /><figcaption aria-hidden="true">Four kernels applied, each extracting a different feature</figcaption>
+</figure>
+</section>
+<section id="layer-h2" class="slide level2">
+<h2>Layer: H2</h2>
+<p>We don’t need all that detail, though! Layer H2 averages the 24x24 feature maps down to 12x12, converting local sets of 4 nodes in H1 to a single node in H2.</p>
+<figure>
+<img data-src="images/zero-h2.png" alt="Reducing layer H2" /><figcaption aria-hidden="true">Reducing layer H2</figcaption>
+</figure>
+</section>
+<section id="layer-h3" class="slide level2">
+<h2>Layer: H3</h2>
+<p>H3 is another feature layer, operating just like H1 but with 12 8x8 feature maps. Each kernel is again 5x5.</p>
+<figure>
+<img data-src="images/zero-h3.png" alt="Feature layer H3" /><figcaption aria-hidden="true">Feature layer H3</figcaption>
+</figure>
+</section>
+<section id="h2-h3-connections" class="slide level2">
+<h2>H2-H3 connections</h2>
+<p>Note that <strong>not all H3 kernels are applied to all H2 layers</strong>. Selection is “guided by prior knowledge of shape recognition.” This simplifies the network.</p>
+<figure>
+<img data-src="images/h2-h3-connections.png" alt="Connections between H2 and H3 layers" /><figcaption aria-hidden="true">Connections between H2 and H3 layers</figcaption>
+</figure>
+</section>
+<section id="layer-h4" class="slide level2">
+<h2>Layer: H4</h2>
+<p>H4 is similar to H2, in that it averages the previous layer. This reduces H3’s 8x8 size to 4x4.</p>
+<figure>
+<img data-src="images/zero-h3.png" alt="Reducing layer H4" /><figcaption aria-hidden="true">Reducing layer H4</figcaption>
+</figure>
+</section>
+<section id="output" class="slide level2">
+<h2>Output</h2>
+<p>10 nodes, fully connected to H4. Each activates between <code>-1</code> and <code>+1</code> with a higher score meaning a more likely prediction for that digit.</p>
+<figure>
+<img data-src="images/full-network.png" alt="The complete network as illustrated by the paper" /><figcaption aria-hidden="true">The complete network as illustrated by the paper</figcaption>
+</figure>
+</section>
+<section id="overall" class="slide level2">
+<h2>Overall</h2>
+<ul>
+<li>4,635 nodes, 98,442 connections, 2,578 independent parameters</li>
+<li>Did <strong>not</strong> depend on elaborate feature extraction, only rough spatial and geometric information.</li>
+</ul>
+<h3 id="training-and-testing">Training and testing</h3>
+<ul>
+<li>Trained on 7,291 handwritten + 2,549 printed digits with 30 epochs.</li>
+<li>Test set error rate was 3.4%.</li>
+<li>Errors were half due to faulty segmentation, and some human beings couldn’t even read!</li>
+</ul>
+</section>
+<section id="performance" class="slide level2">
+<h2>Performance</h2>
+<figure>
+<img data-src="images/atypical-data.png" alt="Example of atypical data" /><figcaption aria-hidden="true">Example of atypical data</figcaption>
+</figure>
+<p>Robust model that generalizes very well when presented with unusual representations of digits.</p>
+<p>Throughput is mainly limited by the normalization step! Reaches 10-12 classifications per second.</p>
+</section>
+<section id="sources" class="slide level2">
+<h2>Sources</h2>
+<ul>
+<li>Uncited images from <a href="https://www.bibsonomy.org/bibtex/1d0f161d61285aca3b30c3add9416921e/idsia">Handwritten Digit Recognition with a Back-Propagation Network</a></li>
+<li>3x3 kernel image from <a href="https://peltarion.com/knowledge-center/documentation/modeling-view/build-an-ai-model/blocks/2d-convolution-block">https://peltarion.com/knowledge-center/documentation/modeling-view/build-an-ai-model/blocks/2d-convolution-block</a></li>
+<li>Sliding kernel application from <a href="https://github.com/vdumoulin/conv_arithmetic">https://github.com/vdumoulin/conv_arithmetic</a></li>
+<li>Activated images network from <a href="https://www.cs.ryerson.ca/~aharley/vis/conv/flat.html">https://www.cs.ryerson.ca/~aharley/vis/conv/flat.html</a></li>
+</ul>
+</section>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/reveal.js//dist/reveal.js"></script>
+
+  // reveal.js plugins
+  <script src="https://unpkg.com/reveal.js//plugin/notes/notes.js"></script>
+  <script src="https://unpkg.com/reveal.js//plugin/search/search.js"></script>
+  <script src="https://unpkg.com/reveal.js//plugin/zoom/zoom.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+        // Push each slide change to the browser history
+        history: true,
+
+        // reveal.js plugins
+        plugins: [
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    </body>
+</html>

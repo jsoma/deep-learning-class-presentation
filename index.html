@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Jonathan Soma">
+  <meta name="dcterms.date" content="2021-01-19">
+  <title>Two Deep Learning Papers</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/reset.css">
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js//dist/theme/serif.css" id="theme">
+  <style>
+  .slides {
+      font-size: 0.75em;
+  }
+  .reveal ul {
+      display: block;
+  }
+  .reveal ol {
+      display: block;
+  }
+
+  img {
+      max-height: 350px !important;
+  }
+
+  figcaption {
+      font-size: 0.6em !important;
+      font-style: italic !important;
+  }
+
+  .subtitle {
+      font-style: italic !important;
+  }
+
+  .date {
+      font-size: 0.75em !important;
+  }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide">
+  <h1 class="title">Two Deep Learning Papers</h1>
+  <p class="subtitle">Robustness and Security in ML Systems, Spring 2021</p>
+  <p class="author">Jonathan Soma</p>
+  <p class="date">January 19, 2021</p>
+</section>
+
+<section class="slide level1">
+
+<h2 id="handwritten-digit-recognition-with-a-back-propagation-network-1990">Handwritten Digit Recognition with a Back-Propagation Network, 1990</h2>
+<p>Y. Le Cun, B. Boser, J. S. Denker, D. Henderson, R. E. Howard, W. Hubbard, and L. D. Jackel</p>
+<p>a.k.a. LeCun90c</p>
+</section>
+<section class="slide level1">
+
+<h2 id="yann-lecun">Yann LeCun</h2>
+<figure>
+<img data-src="images/lecun.png" alt="Yann LeCun on Wikipedia" /><figcaption aria-hidden="true">Yann LeCun on Wikipedia</figcaption>
+</figure>
+<p>Chief AI Scientist (and several other titles) at Facebook, “founding father of convolutional nets.”</p>
+</section>
+<section class="slide level1">
+
+<h2 id="yann-le-cun-vs.-yann-lecun">Yann Le Cun vs. Yann LeCun</h2>
+<blockquote>
+<p>All kinds of badly programmed computers thought that “Le” was my middle name. Even the science citation index knew me as “Y. L. Cun”, which is one of the reasons I now spell my name “LeCun”.</p>
+<p>From Yann’s <a href="http://yann.lecun.com/ex/fun/">Fun Stuff</a> page</p>
+<p>Also: <a href="https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/">Falsehoods Programmers Believe About Names</a></p>
+</blockquote>
+</section>
+<section class="slide level1">
+
+<h3 id="the-problem">The Problem</h3>
+<p>How to turn handwritten ZIP codes from envelopes into numbers</p>
+<figure>
+<img data-src="images/original.png" alt="Examples of original zipcodes from the testing set" /><figcaption aria-hidden="true">Examples of original zipcodes from the testing set</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h3 id="not-the-problem">NOT The Problem</h3>
+<ul>
+<li>Location on the envelope</li>
+<li>Digitization</li>
+<li>Segmentation</li>
+</ul>
+<p><strong>ONLY</strong> concerned with converting a single digit’s image into a number</p>
+</section>
+<section class="slide level1">
+
+<h3 id="why-is-this-a-good-problem">Why is this a good problem?</h3>
+<figure>
+<img data-src="images/normalized.png" alt="Examples of normalized digits from the testing set" /><figcaption aria-hidden="true">Examples of normalized digits from the testing set</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="neocognitron">Neocognitron</h2>
+<figure>
+<img data-src="images/neocog.png" alt="Neocognitron from Dr. Kunihiko Fukushima" /><figcaption aria-hidden="true">Neocognitron from Dr. Kunihiko Fukushima</figcaption>
+</figure>
+<p>Inspiration for CNNs, based on the relationship between the human eye and brain. A large difference is that LeCun used backprop, which makes the paper much simpler to read and the output more effective!</p>
+</section>
+<section class="slide level1">
+
+<h2 id="original-data">Original data</h2>
+<p>After segmentation, ~40x60 pixel greyscale image .</p>
+<p><strong>How much of this information do we need?</strong></p>
+<p><em>What</em> is the information we need?</p>
+</section>
+<section class="slide level1">
+
+<h2 id="why-reduce-information">Why reduce information?</h2>
+<ul>
+<li>Reduce overfitting (improve generalization)</li>
+<li>Reduce training time (increase epochs)</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="network-input">Network Input</h2>
+<p>16x16 grid of greyscale values, from <code>-1</code> to <code>1</code>.</p>
+<figure>
+<img data-src="images/zero-encoded.png" alt="Digitized zero" /><figcaption aria-hidden="true">Digitized zero</figcaption>
+</figure>
+<p>Normalized from ~40x60px original, preserving aspect ratio. Network needs consistent size!</p>
+</section>
+<section class="slide level1">
+
+<h2 id="network-output">Network Output</h2>
+<p><strong>To a human:</strong> Potential classes of <code>0</code>, <code>1</code>, <code>2</code>…<code>9</code></p>
+<p><strong>To the computer:</strong> Ten nodes, activated from <code>-1</code> to <code>+1</code>. Higher value means higher probability of it being that digit. More or less one-hot encoding.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="output-example">Output example</h2>
+<p>Given the output</p>
+<p><code>[0 0 0.5 1 0 -0.3 -0.5 0 0.75 0]</code></p>
+<p>The network’s prediction is <strong>nine</strong> because <code>0.75</code> is the highest number. Next most probable is a <strong>three</strong> with a score of <code>0.5</code>.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="four-hidden-layers">Four Hidden Layers</h2>
+<ul>
+<li><strong>Input:</strong> 16x16 greyscale input</li>
+<li><strong>H1</strong>: Feature layer</li>
+<li><strong>H2</strong>: Averaging layer</li>
+<li><strong>H3</strong>: Feature layer</li>
+<li><strong>H4</strong>: Averaging layer</li>
+<li><strong>Output:</strong> 10x1 encoding</li>
+</ul>
+<p><em>Not</em> fully-connected. “A fully connected network with enough discriminative power for the task would have far too many parameters to be able to generalize correctly.”</p>
+</section>
+<section class="slide level1">
+
+<h2 id="convolution">Convolution</h2>
+<p>A <strong>convolution</strong> is used to “see” patterns around a pixel like horizontal, vertical or diagonal edges.</p>
+<figure>
+<img data-src="images/convolution-1.png" alt="A 3x3 kernel being applied to an image" /><figcaption aria-hidden="true">A 3x3 kernel being applied to an image</figcaption>
+</figure>
+<p>It’s just linear algebra: a <strong>kernel</strong> is applied to create a new version of a pixel dependent on the pixels around it. The kernel (or convolutional matrix) is just a matrix that is multiplied against each pixel and its surroundings.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="application-of-the-convolution">Application of the convolution</h2>
+<p>Edges of the image are padded with <code>-1</code> to allow kernel to be applied to outermost pixels. The result is called a <strong>feature map</strong>.</p>
+<figure>
+<img data-src="images/sliding.gif" alt="Kernel being applied to create the first layer" /><figcaption aria-hidden="true">Kernel being applied to create the first layer</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="a-single-kernel-map">A single kernel map</h2>
+<p>The <code>-1</code> <code>+1</code> range of each feature map highlights a specific type of feature at a specific location.</p>
+<figure>
+<img data-src="images/zero.png" alt="Upper edge highlighted by a convolution" /><figcaption aria-hidden="true">Upper edge highlighted by a convolution</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="layer-h1">Layer: H1</h2>
+<p>Four different 5x5 kernels are applied, creating four different 576-node feature maps that each highlight a different type of feature.</p>
+<figure>
+<img data-src="images/zero-h1.png" alt="Four kernels applied, each extracting a different feature" /><figcaption aria-hidden="true">Four kernels applied, each extracting a different feature</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="layer-h2">Layer: H2</h2>
+<p>We don’t need all that detail, though! Layer H2 averages the 24x24 feature maps down to 12x12, converting local sets of 4 nodes in H1 to a single node in H2.</p>
+<figure>
+<img data-src="images/zero-h2.png" alt="Reducing layer H2" /><figcaption aria-hidden="true">Reducing layer H2</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="layer-h3">Layer: H3</h2>
+<p>H3 is another feature layer, operating just like H1 but generating twelve 8x8 feature maps. Each kernel is again 5x5.</p>
+<figure>
+<img data-src="images/zero-h3.png" alt="Feature layer H3" /><figcaption aria-hidden="true">Feature layer H3</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="h2-h3-connections">H2-H3 connections</h2>
+<p>Note that <strong>not all H3 kernels are applied to all H2 layers</strong>. Selection is “guided by prior knowledge of shape recognition.” This simplifies the network.</p>
+<figure>
+<img data-src="images/h2-h3-connections.png" alt="Connections between H2 and H3 layers" /><figcaption aria-hidden="true">Connections between H2 and H3 layers</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="layer-h4">Layer: H4</h2>
+<p>H4 is similar to H2, in that it averages the previous layer.</p>
+<p>This reduces H3’s 8x8 size to 4x4.</p>
+<figure>
+<img data-src="images/zero-h3.png" alt="Reducing layer H4" /><figcaption aria-hidden="true">Reducing layer H4</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="output">Output</h2>
+<p>10 nodes, fully connected to H4. Each activates between <code>-1</code> and <code>+1</code> with a higher score meaning a more likely prediction for that digit.</p>
+</section>
+<section class="slide level1">
+
+<figure>
+<img data-src="images/full-network.png" alt="The complete network as illustrated by the paper" /><figcaption aria-hidden="true">The complete network as illustrated by the paper</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="overall">Overall</h2>
+<ul>
+<li>4,635 nodes, 98,442 connections, 2,578 independent parameters</li>
+<li>Did <strong>not</strong> depend on elaborate feature extraction, only rough spatial and geometric information.</li>
+</ul>
+<h3 id="training-and-testing">Training and testing</h3>
+<ul>
+<li>Weights adjusted using backpropagation</li>
+<li>Trained on 7,291 handwritten + 2,549 printed digits with 30 epochs</li>
+<li>Test set error rate was 3.4%</li>
+<li>Errors were half due to faulty segmentation, and some human beings couldn’t even read!</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="performance">Performance</h2>
+<figure>
+<img data-src="images/atypical-data.png" alt="Example of atypical data" /><figcaption aria-hidden="true">Example of atypical data</figcaption>
+</figure>
+<p>Robust model that generalizes very well when presented with unusual representations of digits.</p>
+<p>Throughput is mainly limited by the normalization step! Reaches 10-12 classifications per second.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="the-birth-of-cnns">The birth of CNNs!</h2>
+<p>But then they went to sleep for one of the many AI winters. For successful deep learning you generally need:</p>
+<ul>
+<li>A lot of data</li>
+<li>A lot of processing power (or tricks to speed things up)</li>
+</ul>
+</section>
+<section id="time-passes" class="slide level1">
+<h1>Time passes</h1>
+</section>
+<section class="slide level1">
+
+<h2 id="the-problem-1">The Problem</h2>
+<p><strong>ImageNet:</strong> 15 million labeled high-res images, belonging to ~22,000 categories. Labeled by people on Mechanical Turk.</p>
+<p><strong>ILSVRC:</strong> ImageNet Large-Scale Visual Recognition Challenge - subset of ImageNet with 1,000 images in each of 1,000 categories</p>
+</section>
+<section class="slide level1">
+
+<h2 id="imagenet-2010-entrants">ImageNet 2010 entrants</h2>
+<figure>
+<img data-src="images/Lbp_neighbors.svg.png" alt="LBP: Local binary pattern" /><figcaption aria-hidden="true">LBP: Local binary pattern</figcaption>
+</figure>
+<figure>
+<img data-src="images/SIFT.png" alt="SIFT: scale invariant feature transform" /><figcaption aria-hidden="true">SIFT: scale invariant feature transform</figcaption>
+</figure>
+<p>Up until 2012, <a href="http://image-net.org/challenges/LSVRC/2010/results">the entrants</a> were very concerned with quick, manually engineered features and SVMs.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="imagenet-2010-results">ImageNet 2010 results</h2>
+<figure>
+<img data-src="images/top-1-top-5.png" alt="Top 1 vs top 5" /><figcaption aria-hidden="true">Top 1 vs top 5</figcaption>
+</figure>
+<p>Best performance error rates:</p>
+<ul>
+<li>top-1: 47.1%, 45.7%</li>
+<li>top-5: 28.2%, 25.7%</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="imagenet-classification-with-deep-convolutional-neural-networks-2012">ImageNet Classification with Deep Convolutional Neural Networks, 2012</h2>
+<p>Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton</p>
+</section>
+<section class="slide level1">
+
+<h2 id="the-approach">The Approach</h2>
+<p>Another CNN! But bigger, deeper, and much more optimized.</p>
+<p><em>But also remarkably similar to LeCun90c!</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="preprocessing-original-data">Preprocessing original data</h2>
+<p>Input was variable-size normal images.</p>
+<figure>
+<img data-src="images/cropped.png" alt="Cropped image" /><figcaption aria-hidden="true">Cropped image</figcaption>
+</figure>
+<ul>
+<li>Downsampled to &gt;256x256</li>
+<li>Then cropped to 256x256 pixels</li>
+<li>RGB values converted to distance from mean pixel value</li>
+</ul>
+<p><em>Why are we keeping RGB values? What are downsides of using RGB?</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="model-input">Model Input</h2>
+<p><em>Not the 256x256 image!</em> 244x244 images instead.</p>
+<figure>
+<img data-src="images/244.png" alt="Several 244x244 slices" /><figcaption aria-hidden="true">Several 244x244 slices</figcaption>
+</figure>
+<p>Top left, top right, bottom left, bottom right, and center. Reflected, too. Can actually create these on CPU while the GPU is working.</p>
+<p><em>What’s the point of doing this? They’re basically the same image!</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="network-layers">Network Layers</h2>
+<ul>
+<li><strong>Input:</strong> 244x244x3 image</li>
+<li><strong>L1:</strong> 96 kernels of 11x11x3 w/ stride of 4.</li>
+<li><strong>L2:</strong> 256 kernels of 5x5x48</li>
+<li><strong>L3:</strong> 384 kernels of 3x3x256</li>
+<li><strong>L4:</strong> 256 kernels of 3x3x192</li>
+<li><strong>L5:</strong> 256 kernels of 3x3x192</li>
+<li><strong>Dense layers:</strong> two 2048-node fully-connected layers</li>
+<li><strong>Output:</strong> 1000 nodes</li>
+</ul>
+<p>Very deep - LeCun’s only had two convolutional layers. Why do we suddenly have all these extra layers?</p>
+<p><em>What is missing compared to LeCun’s digit analysis?</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="reduction">Reduction</h2>
+<p><strong>LeCun90c:</strong> “Averaging layer,” take 2x2 pixel area and condense to 1 pixel</p>
+<p><strong>AlexNet:</strong> “Pooling” - take every other pixel, average with the surrounding 8 pixels. This resizes the same amount, but with overlap!</p>
+<figure>
+<img data-src="images/overlap.png" alt="2x3 max pooling" /><figcaption aria-hidden="true">2x3 max pooling</figcaption>
+</figure>
+<p>Happens on layers 1, 2 and 5. <em>Why wouldn’t you do this on every layer? Why do this at all?</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="response-normalization">Response normalization</h2>
+<p><strong>Force competition between kernels at the same location.</strong></p>
+<p>If a lot of kernels have high levels of activity, adjust so only the most active ones express themselves.</p>
+<p>a.k.a. if an area has a few features, the network mostly notices the most obvious ones.</p>
+<p>Occurs after convolution but before max pooling.</p>
+<p><em>Why not just focus on all of the features?</em></p>
+</section>
+<section class="slide level1">
+
+<h3 id="relus">ReLUs</h3>
+<p>Uses ReLUs instead of hyperbolic tangent for neuron model.</p>
+<figure>
+<img data-src="images/relu-tanh.png" alt="ReLU vs tanh" /><figcaption aria-hidden="true">ReLU vs tanh</figcaption>
+</figure>
+<ul>
+<li>tanh is <strong>saturating</strong> because it’s squashed into 0-1, and near 0 or 1 there isn’t much change</li>
+<li>ReLU is <strong>nonsaturating</strong>, so it will converge faster because gradients are larger</li>
+</ul>
+<p><em>Why is training speed important?</em></p>
+</section>
+<section class="slide level1">
+
+<p>Can do in 5 epochs what would have taken ~37 epochs with tanh!</p>
+<figure>
+<img data-src="images/alexnet-epochs.png" alt="ReLU vs tanh training" /><figcaption aria-hidden="true">ReLU vs tanh training</figcaption>
+</figure>
+<p><strong>Limiting factor for model is training time.</strong> Decreasing training time = increase dataset or train longer.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="gpus-vs-cpus">GPUs vs CPUs</h2>
+<p>Wrote a GPU implementation of 2D convolutions. GPUs are excellent at running computations in parallel, which allowed a much larger CNN than previous work.</p>
+<blockquote>
+<p>In the end, the network’s size is limited mainly by the amount of memory available on current GPUs and by the amount of training time that we are willing to tolerate. Our network takes between five and six days to train on two GTX 580 3GB GPUs. All of our experiments suggest that our results can be improved simply by waiting for faster GPUs and bigger datasets to become available.</p>
+</blockquote>
+</section>
+<section class="slide level1">
+
+<h2 id="another-speedup-multiple-gpus">Another speedup: <em>multiple</em> GPUs</h2>
+<p>Feature maps are spread across two GPUs, GPUs only talk to each other between the 2nd and 3rd layers and after the last conv layer.</p>
+<p>Parallelization = speedup = more training epochs</p>
+<p>Similar to a “columnar” CNN.</p>
+<figure>
+<img data-src="images/alexnet-gpu-spread.png" alt="Kernels across GPUs" /><figcaption aria-hidden="true">Kernels across GPUs</figcaption>
+</figure>
+</section>
+<section id="layers" class="slide level1">
+<h1>Layers</h1>
+<figure>
+<img data-src="images/alexnet-arch.png" alt="Layer architecture" /><figcaption aria-hidden="true">Layer architecture</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="dropout">Dropout</h2>
+<p>It would be nice to combine multiple prediction models, but too expensive even with the speedups!</p>
+<p>Instead, <strong>DROPOUT:</strong> during training, randomly set half of the neurons to 0 and don’t let them participate. Almost like having multiple models, and only increases training time 1-2x.</p>
+<p>It’s like breaking your hand and having to write with your non-dominant one.</p>
+<p><em>Only used in the first two layers.</em></p>
+</section>
+<section class="slide level1">
+
+<h2 id="performance-top-1-vs-top-5">Performance: top-1 vs top-5</h2>
+<figure>
+<img data-src="images/top-1-top-5.png" alt="Top 1 vs top 5" /><figcaption aria-hidden="true">Top 1 vs top 5</figcaption>
+</figure>
+<ul>
+<li>Top 1 error rate: 37.5</li>
+<li>Top 5 error rate: 17.0</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="performance-top-1-vs-top-5-1">Performance: top-1 vs top-5</h2>
+<p>Amazing performance! Blows the competition out of the water!</p>
+<figure>
+<img data-src="images/alexnet-perf.png" alt="Performance on 2010 dataset" /><figcaption aria-hidden="true">Performance on 2010 dataset</figcaption>
+</figure>
+<p>Also tested against ImageNet 2009, top-1 and top-5 error rates were 67.4% and 40.9% compared to best published results on of 78.1% and 60.9%.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="what-is-the-right-label">What is the right label?</h2>
+<figure>
+<img data-src="images/iffy.png" alt="An interesting subset" /><figcaption aria-hidden="true">An interesting subset</figcaption>
+</figure>
+</section>
+<section class="slide level1">
+
+<h2 id="this-was-the-beginning">This was the beginning</h2>
+<figure>
+<img data-src="images/imagenet-chart.png" alt="ImageNet error rates over time" /><figcaption aria-hidden="true">ImageNet error rates over time</figcaption>
+</figure>
+<p>After 2017 ImageNet stopped hosting because the models were too good, beating humans!</p>
+</section>
+<section class="slide level1">
+
+<h2 id="vggnet">2013: VGGNet</h2>
+<figure>
+<img data-src="images/vggnet-arch.png" alt="VGGNet architecture" /><figcaption aria-hidden="true">VGGNet architecture</figcaption>
+</figure>
+<p>7.3% top-5 error! 19 layers.</p>
+<p><strong>Stacking convolutional layers:</strong> Use multiple 3x3 layers instead of larger layers. Smaller filters, but deeper network!</p>
+</section>
+<section class="slide level1">
+
+<h2 id="googlenet">2014: GoogLeNet</h2>
+<figure>
+<img data-src="images/googlenet-arch.png" alt="GoogLeNet architecture" /><figcaption aria-hidden="true">GoogLeNet architecture</figcaption>
+</figure>
+<p>6.7% top-5 error! 22 layers.</p>
+<p><strong>Inception module:</strong> What size convolution should we use? <em>All of them!</em> Then let the network figure out which one to pay attention to. Far fewer parameters.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="resnet">2015: ResNet</h2>
+<figure>
+<img data-src="images/resnet-arch.png" alt="ResNet architecture" /><figcaption aria-hidden="true">ResNet architecture</figcaption>
+</figure>
+<p>3.57% top-5 error! 152 layers!</p>
+<p><strong>Residual blocks:</strong> More layers aren’t always better layers! Residual blocks have output of layer n feed into layer n+1 but also layer ~n+3.</p>
+</section>
+<section class="slide level1">
+
+<h2 id="questions">Questions</h2>
+<ul>
+<li>From a technical perspective, what changed between these 1990 and 2012 papers? What stayed the same?</li>
+<li>What do we still use from AlexNet and what have we discarded?</li>
+<li>What role does computing power play in machine learning’s capabilities?</li>
+<li>What role does a dataset play in the determination of ML capabilities?</li>
+<li>In both models we spend a lot of time discarding data. What happened to “more data is better data?”</li>
+<li>What features of these systems make them more or less robust/secure?</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Uncited images from <a href="https://www.bibsonomy.org/bibtex/1d0f161d61285aca3b30c3add9416921e/idsia">Handwritten Digit Recognition with a Back-Propagation Network</a></li>
+<li>3x3 kernel image from <a href="https://peltarion.com/knowledge-center/documentation/modeling-view/build-an-ai-model/blocks/2d-convolution-block">https://peltarion.com/knowledge-center/documentation/modeling-view/build-an-ai-model/blocks/2d-convolution-block</a></li>
+<li>Sliding kernel application from <a href="https://github.com/vdumoulin/conv_arithmetic">https://github.com/vdumoulin/conv_arithmetic</a></li>
+<li>Activated images network from <a href="https://www.cs.ryerson.ca/~aharley/vis/conv/flat.html">https://www.cs.ryerson.ca/~aharley/vis/conv/flat.html</a></li>
+<li>LBP from <a href="https://en.wikipedia.org/wiki/File:Lbp_neighbors.svg">Wikipedia</a></li>
+<li>ImageNet performance images from <a href="http://cs231n.stanford.edu/slides/2019/cs231n_2019_lecture09.pdf">these slides</a></li>
+<li>Batch normalization <a href="https://www.youtube.com/watch?v=DtEq44FTPM4">excellent explanation in this video</a></li>
+</ul>
+</section>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/reveal.js//dist/reveal.js"></script>
+
+  // reveal.js plugins
+  <script src="https://unpkg.com/reveal.js//plugin/notes/notes.js"></script>
+  <script src="https://unpkg.com/reveal.js//plugin/search/search.js"></script>
+  <script src="https://unpkg.com/reveal.js//plugin/zoom/zoom.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+        // Push each slide change to the browser history
+        history: true,
+
+        // reveal.js plugins
+        plugins: [
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    </body>
+</html>
